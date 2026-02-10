@@ -30,10 +30,11 @@ class CricketAdService {
   static AppOpenAd? _appOpenAd;
   static bool _isAppOpenAdReady = false;
   static bool _isShowingAppOpenAd = false;
+  static bool _isLoadingAppOpen = false; // Guard: duplicate load prevent karta hai
   static bool _isFirstLaunch = true; // Track first launch to auto-show ad
   static bool _shouldShowOnLoad =
       false; // Flag to auto-show when ad loads (for foreground)
-  static DateTime? _lastAdShownTime; // Prevent rapid back-to-back ads
+  static DateTime? _lastAdDismissedTime; // Ad DISMISS hone ke baad cooldown track karo
   static int _appOpenAdLoadAttempts = 0;
   static const int _maxAppOpenAdLoadAttempts = 3;
   static const Duration _minTimeBetweenAds = Duration(
@@ -51,8 +52,9 @@ class CricketAdService {
       // Reset flags on each app start (for cold start detection)
       _isFirstLaunch = true;
       _isShowingAppOpenAd = false;
+      _isLoadingAppOpen = false;
       _shouldShowOnLoad = false;
-      _lastAdShownTime = null;
+      _lastAdDismissedTime = null;
 
       // Initialize Mobile Ads SDK first (required for both platforms)
       await MobileAds.instance.initialize();
@@ -264,6 +266,12 @@ class CricketAdService {
       return;
     }
 
+    // Guard: duplicate load prevent karo
+    if (_isLoadingAppOpen) {
+      debugPrint('⚠️ App-open ad already loading - duplicate load skipped');
+      return;
+    }
+
     // iOS: Firebase se ID nahi mili to ad load mat karo
     if (Platform.isIOS && _getAppOpenAdUnitId().isEmpty) {
       debugPrint(
@@ -292,6 +300,8 @@ class CricketAdService {
       return;
     }
 
+    _isLoadingAppOpen = true; // Load shuru ho raha hai
+
     try {
       await AppOpenAd.load(
         adUnitId: _getAppOpenAdUnitId(),
@@ -300,6 +310,7 @@ class CricketAdService {
           onAdLoaded: (ad) {
             _appOpenAd = ad;
             _isAppOpenAdReady = true;
+            _isLoadingAppOpen = false; // Load complete
             _appOpenAdLoadAttempts = 0;
             debugPrint('✅ App-open ad loaded');
 
@@ -309,7 +320,7 @@ class CricketAdService {
               onAdShowedFullScreenContent: (ad) {
                 if (_appOpenAd == adRef) {
                   _isShowingAppOpenAd = true;
-                  _lastAdShownTime = DateTime.now();
+                  // Note: cooldown ab DISMISS pe track hoga, show pe nahi
                   debugPrint('📢 App-open ad showed');
                   if (Platform.isIOS) {
                     debugPrint(
@@ -322,6 +333,7 @@ class CricketAdService {
                 // Check if this is still our ad (prevent "Ad with id 0" error)
                 if (_appOpenAd == adRef && _isShowingAppOpenAd) {
                   _isShowingAppOpenAd = false;
+                  _lastAdDismissedTime = DateTime.now(); // Cooldown DISMISS hone se shuru hoga
                   try {
                     ad.dispose();
                   } catch (e) {
@@ -398,6 +410,7 @@ class CricketAdService {
           },
           onAdFailedToLoad: (error) {
             _isAppOpenAdReady = false;
+            _isLoadingAppOpen = false; // Load fail hua, guard reset karo
             _appOpenAdLoadAttempts++;
             debugPrint(
               '❌ App-open ad failed to load: ${error.message} (attempt $_appOpenAdLoadAttempts)',
@@ -435,6 +448,7 @@ class CricketAdService {
       }
       _appOpenAd = null;
       _isAppOpenAdReady = false;
+      _isLoadingAppOpen = false; // Guard reset karo
     }
   }
 
@@ -492,13 +506,13 @@ class CricketAdService {
       return;
     }
 
-    // Prevent immediate re-show (wait 10 seconds after user closes ad)
-    // This prevents showing ad right after user just dismissed it
-    if (_lastAdShownTime != null) {
-      final timeSinceLastAd = DateTime.now().difference(_lastAdShownTime!);
+    // Prevent immediate re-show (wait 10 seconds after user DISMISSES ad)
+    // Ye sirf tab block karta hai jab user ne abhi-abhi ad close kiya ho
+    if (_lastAdDismissedTime != null) {
+      final timeSinceLastAd = DateTime.now().difference(_lastAdDismissedTime!);
       if (timeSinceLastAd < _minTimeBetweenAds) {
         debugPrint(
-          '⚠️ Skipping app-open ad - just closed ${timeSinceLastAd.inSeconds}s ago (wait ${_minTimeBetweenAds.inSeconds}s)',
+          '⚠️ Skipping app-open ad - dismissed ${timeSinceLastAd.inSeconds}s ago (wait ${_minTimeBetweenAds.inSeconds}s)',
         );
         return;
       }
@@ -509,8 +523,14 @@ class CricketAdService {
       debugPrint('⚠️ App-open ad not ready on foreground - loading now...');
       // Set flag to auto-show when ad loads
       _shouldShowOnLoad = true;
-      // Load ad - it will auto-show when loaded (see onAdLoaded callback)
-      loadAppOpenAd();
+      // Load ad - sirf tab load karo jab already loading nahi ho raha
+      if (!_isLoadingAppOpen) {
+        loadAppOpenAd();
+      } else {
+        debugPrint(
+          '⚠️ Load already in progress - will auto-show when ready (_shouldShowOnLoad=true)',
+        );
+      }
       return;
     }
 
@@ -752,10 +772,11 @@ class CricketAdService {
     _interstitialAd?.dispose();
     _interstitialAd = null;
     _isAppOpenAdReady = false;
+    _isLoadingAppOpen = false;
     _isInterstitialAdReady = false;
     _isLoadingInterstitial = false;
     _isShowingAppOpenAd = false;
-    _lastAdShownTime = null;
+    _lastAdDismissedTime = null;
     _appOpenAdLoadAttempts = 0;
     _screenViewCount = 0;
   }
