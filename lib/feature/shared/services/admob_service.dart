@@ -425,22 +425,24 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
     if (_isLoaded && _nativeAd != null) {
       final double height = widget.height ?? 250;
       debugPrint('✅ Rendering native ad widget with height: $height');
-      if (defaultTargetPlatform == TargetPlatform.iOS) {
-        debugPrint('📱 iOS: Native ad loaded and rendering');
-        debugPrint('📱 iOS: AdWidget should display native ad view');
-        debugPrint('📱 iOS: If not visible on real device:');
-        debugPrint('   1. Check Xcode console for Swift print statements');
-        debugPrint(
-          '   2. Verify factory is registered (look for "✅ iOS Native Ad Factory registered")',
-        );
-        debugPrint('   3. Check if createNativeAd is being called');
-        debugPrint('   4. Verify views are not hidden (isHidden = false)');
-      }
 
-      return SizedBox(
-        height: height,
-        width: double.infinity,
-        child: AdWidget(ad: _nativeAd!),
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+        child: Container(
+          width: double.infinity,
+          height: height,
+          decoration: BoxDecoration(
+            color: const Color(0xFF0F1D26),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          clipBehavior: Clip.hardEdge,
+          alignment: Alignment.center,
+          child: SizedBox(
+            width: double.infinity,
+            height: height,
+            child: AdWidget(ad: _nativeAd!),
+          ),
+        ),
       );
     }
 
