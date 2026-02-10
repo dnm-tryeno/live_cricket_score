@@ -1,5 +1,8 @@
+import 'dart:io';
+
 import 'package:firebase_remote_config/firebase_remote_config.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 
 /// Firebase Remote Config Service
 /// Handles remote configuration for ad control and feature flags
@@ -7,23 +10,16 @@ class FirebaseRemoteConfigService {
   static FirebaseRemoteConfig? _remoteConfig;
   static bool _isInitialized = false;
 
-  // Default values - ad toggles + iOS ad unit IDs (control from Firebase, change anytime)
-  static const String _defaultIosBanner =
-      '/229445249,22493636089/highR_RS88_Crictvlivecricketscore_488_BANNER_16326_090226';
-  static const String _defaultIosAppOpen =
-      '/229445249,22493636089/highR_RS88_Crictvlivecricketscore_488_APP_OPEN_16325_090226';
-  static const String _defaultIosInterstitial =
-      '/229445249,22493636089/highR_RS88_Crictvlivecricketscore_488_INTERSTITIAL_16327_090226';
-  static const String _defaultIosNative =
-      '/229445249,22493636089/highR_RS88_Crictvlivecricketscore_488_NATIVE_16328_090226';
-
+  // iOS ad unit IDs: sirf Firebase Remote Config se aayengi, Dart mein hardcoded nahi
+  // Firebase Console mein set karo: ios_ad_unit_banner, ios_ad_unit_app_open,
+  // ios_ad_unit_interstitial, ios_ad_unit_native
   static const Map<String, dynamic> _defaults = {
     'ads_enabled_android': true,
     'ads_enabled_ios': true,
-    'ios_ad_unit_banner': _defaultIosBanner,
-    'ios_ad_unit_app_open': _defaultIosAppOpen,
-    'ios_ad_unit_interstitial': _defaultIosInterstitial,
-    'ios_ad_unit_native': _defaultIosNative,
+    'ios_ad_unit_banner': '',
+    'ios_ad_unit_app_open': '',
+    'ios_ad_unit_interstitial': '',
+    'ios_ad_unit_native': '',
   };
 
   /// Initialize Firebase Remote Config
@@ -51,12 +47,20 @@ class FirebaseRemoteConfigService {
 
       if (kDebugMode) {
         debugPrint('✅ Firebase Remote Config initialized');
-        debugPrint('📱 ===== iOS Ad Unit IDs (from Firebase Remote Config) =====');
+        debugPrint(
+          '📱 ===== iOS Ad Unit IDs (from Firebase Remote Config) =====',
+        );
         debugPrint('📱 iOS Banner     : $iosAdUnitBanner');
         debugPrint('📱 iOS App Open   : $iosAdUnitAppOpen');
         debugPrint('📱 iOS Interstitial: $iosAdUnitInterstitial');
         debugPrint('📱 iOS Native     : $iosAdUnitNative');
-        debugPrint('📱 ========================================================');
+        debugPrint(
+          '📱 ========================================================',
+        );
+        // iOS App ID: Info.plist se read karo (Remote Config se nahi)
+        if (Platform.isIOS) {
+          await _printIosAppId();
+        }
       }
     } catch (e) {
       if (kDebugMode) {
@@ -102,46 +106,55 @@ class FirebaseRemoteConfigService {
     }
   }
 
-  /// iOS only: Banner ad unit ID from Remote Config (change in Firebase = no app update)
+  /// iOS only: Banner ad unit ID — sirf Firebase Remote Config se
   static String get iosAdUnitBanner {
     try {
-      final v = _remoteConfig?.getString('ios_ad_unit_banner');
-      return (v != null && v.isNotEmpty) ? v : _defaultIosBanner;
+      return _remoteConfig?.getString('ios_ad_unit_banner') ?? '';
     } catch (e) {
-      return _defaultIosBanner;
+      return '';
     }
   }
 
-  /// iOS only: App Open ad unit ID from Remote Config
+  /// iOS only: App Open ad unit ID — sirf Firebase Remote Config se
   static String get iosAdUnitAppOpen {
     try {
-      final v = _remoteConfig?.getString('ios_ad_unit_app_open');
-      return (v != null && v.isNotEmpty) ? v : _defaultIosAppOpen;
+      return _remoteConfig?.getString('ios_ad_unit_app_open') ?? '';
     } catch (e) {
-      return _defaultIosAppOpen;
+      return '';
     }
   }
 
-  /// iOS only: Interstitial ad unit ID from Remote Config
+  /// iOS only: Interstitial ad unit ID — sirf Firebase Remote Config se
   static String get iosAdUnitInterstitial {
     try {
-      final v = _remoteConfig?.getString('ios_ad_unit_interstitial');
-      return (v != null && v.isNotEmpty) ? v : _defaultIosInterstitial;
+      return _remoteConfig?.getString('ios_ad_unit_interstitial') ?? '';
     } catch (e) {
-      return _defaultIosInterstitial;
+      return '';
     }
   }
 
-  /// iOS only: Native ad unit ID from Remote Config
+  /// iOS only: Native ad unit ID — sirf Firebase Remote Config se
   static String get iosAdUnitNative {
     try {
-      final v = _remoteConfig?.getString('ios_ad_unit_native');
-      return (v != null && v.isNotEmpty) ? v : _defaultIosNative;
+      return _remoteConfig?.getString('ios_ad_unit_native') ?? '';
     } catch (e) {
-      return _defaultIosNative;
+      return '';
     }
   }
 
   /// Get remote config instance
   static FirebaseRemoteConfig? get remoteConfig => _remoteConfig;
+
+  /// iOS only: Info.plist se GADApplicationIdentifier read karke print karo
+  static Future<void> _printIosAppId() async {
+    try {
+      const channel = MethodChannel('com.app.ios_info');
+      final appId = await channel.invokeMethod<String>('getGADAppId');
+      debugPrint(
+        '📱 iOS App ID (Info.plist → GADApplicationIdentifier): $appId',
+      );
+    } catch (e) {
+      debugPrint('⚠️ iOS App ID read error: $e');
+    }
+  }
 }

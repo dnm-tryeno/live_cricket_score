@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_project/cricket_app/constants/cricket_ad_constants.dart';
+import 'package:flutter_project/cricket_app/shared/services/firebase_remote_config_service.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 
 class AdMobService {
@@ -234,7 +237,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       debugPrint('📱 iOS: NativeAdWidget initializing');
       debugPrint(
-        '📱 iOS: Ad unit ID will be: ${widget.adUnitId ?? "ca-app-pub-3940256099942544/3986624511"}',
+        '📱 iOS: Ad unit ID will be: ${widget.adUnitId ?? FirebaseRemoteConfigService.iosAdUnitNative}',
       );
       debugPrint(
         '📱 iOS: Factory ID: listTile (should be registered in AppDelegate.swift)',
@@ -273,7 +276,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
       debugPrint('🔄 Loading native ad...');
       if (defaultTargetPlatform == TargetPlatform.iOS) {
         debugPrint(
-          '📱 iOS: Using test ad unit ID: ca-app-pub-3940256099942544/3986624511',
+          '📱 iOS: Using native ad unit ID (Firebase Remote Config): ${FirebaseRemoteConfigService.iosAdUnitNative}',
         );
         debugPrint(
           '📱 iOS: Factory ID: listTile (should be registered in AppDelegate.swift)',
@@ -281,10 +284,11 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
         debugPrint('📱 iOS: Check Xcode console for factory registration log');
       }
 
-      // Get platform-specific test ID if not provided
-      final defaultAdUnitId = defaultTargetPlatform == TargetPlatform.android
+      // Get platform-specific ad unit ID if not provided
+      final defaultAdUnitId = Platform.isAndroid
           ? 'ca-app-pub-3940256099942544/2247696110' // Android native test ID
-          : 'ca-app-pub-3940256099942544/3986624511'; // iOS native test ID (AdX)
+          : FirebaseRemoteConfigService
+                .iosAdUnitNative; // iOS: Firebase Remote Config se
 
       _nativeAd = NativeAd(
         adUnitId: widget.adUnitId ?? defaultAdUnitId,
@@ -343,7 +347,7 @@ class _NativeAdWidgetState extends State<NativeAdWidget> {
               if (error.message.contains('format') ||
                   error.message.contains('invalid')) {
                 debugPrint(
-                  '❌ iOS: Ad unit ID format issue - using test ID: ca-app-pub-3940256099942544/3986624511',
+                  '❌ iOS: Ad unit ID format issue - using: ${FirebaseRemoteConfigService.iosAdUnitNative}',
                 );
               }
             }

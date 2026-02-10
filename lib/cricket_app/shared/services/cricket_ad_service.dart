@@ -192,19 +192,23 @@ class CricketAdService {
   }
 
   /// Get app-open ad unit ID. Android: test ID. iOS: from Firebase Remote Config.
+  /// Returns empty string if iOS and Firebase value not available.
   static String _getAppOpenAdUnitId() {
     if (Platform.isAndroid) {
       return 'ca-app-pub-3940256099942544/9257395921'; // Android App Open Test ID
     }
-    return FirebaseRemoteConfigService.iosAdUnitAppOpen; // iOS: Remote Config
+    return FirebaseRemoteConfigService
+        .iosAdUnitAppOpen; // iOS: sirf Firebase Remote Config se
   }
 
   /// Get interstitial ad unit ID. Android: test ID. iOS: from Firebase Remote Config.
+  /// Returns empty string if iOS and Firebase value not available.
   static String _getInterstitialAdUnitId() {
     if (Platform.isAndroid) {
       return 'ca-app-pub-3940256099942544/1033173712'; // Android Test ID
     }
-    return FirebaseRemoteConfigService.iosAdUnitInterstitial; // iOS: Remote Config
+    return FirebaseRemoteConfigService
+        .iosAdUnitInterstitial; // iOS: sirf Firebase Remote Config se
   }
 
   /// Load banner ad
@@ -227,9 +231,15 @@ class CricketAdService {
           onAdFailedToLoad: (ad, error) {
             debugPrint('❌ Banner ad failed to load: ${error.message}');
             if (Platform.isIOS && error.message.contains('No ad to show')) {
-              debugPrint('⚠️ iOS: "No ad to show" is normal for newly approved ad units');
-              debugPrint('⚠️ iOS: Ad units can take 24-72 hours to start serving ads');
-              debugPrint('⚠️ iOS: This is expected - ads will work once inventory is ready');
+              debugPrint(
+                '⚠️ iOS: "No ad to show" is normal for newly approved ad units',
+              );
+              debugPrint(
+                '⚠️ iOS: Ad units can take 24-72 hours to start serving ads',
+              );
+              debugPrint(
+                '⚠️ iOS: This is expected - ads will work once inventory is ready',
+              );
             }
             ad.dispose();
           },
@@ -251,6 +261,14 @@ class CricketAdService {
   /// Load app-open ad (called at app start and after each dismiss)
   static Future<void> loadAppOpenAd() async {
     if (!shouldShowAds() || _isShowingAppOpenAd) {
+      return;
+    }
+
+    // iOS: Firebase se ID nahi mili to ad load mat karo
+    if (Platform.isIOS && _getAppOpenAdUnitId().isEmpty) {
+      debugPrint(
+        '⚠️ iOS App Open ad skipped: Firebase Remote Config se ID nahi mili',
+      );
       return;
     }
 
@@ -550,6 +568,14 @@ class CricketAdService {
   /// iOS: Check ads_enabled_ios
   static Future<void> loadInterstitialAd() async {
     if (!shouldShowAds() || _isLoadingInterstitial) {
+      return;
+    }
+
+    // iOS: Firebase se ID nahi mili to ad load mat karo
+    if (Platform.isIOS && _getInterstitialAdUnitId().isEmpty) {
+      debugPrint(
+        '⚠️ iOS Interstitial ad skipped: Firebase Remote Config se ID nahi mili',
+      );
       return;
     }
 

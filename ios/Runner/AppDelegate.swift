@@ -10,7 +10,23 @@ import google_mobile_ads
   ) -> Bool {
     // Register Flutter plugins FIRST (required for Google Mobile Ads plugin)
     GeneratedPluginRegistrant.register(with: self)
-    
+
+    // MethodChannel: expose Info.plist values to Flutter (iOS only)
+    if let controller = window?.rootViewController as? FlutterViewController {
+      let channel = FlutterMethodChannel(
+        name: "com.app.ios_info",
+        binaryMessenger: controller.binaryMessenger
+      )
+      channel.setMethodCallHandler { call, result in
+        if call.method == "getGADAppId" {
+          let appId = Bundle.main.infoDictionary?["GADApplicationIdentifier"] as? String ?? ""
+          result(appId)
+        } else {
+          result(FlutterMethodNotImplemented)
+        }
+      }
+    }
+
     // Register native ad factory for iOS AFTER plugin registration
     let nativeAdFactory = NativeAdFactory()
     FLTGoogleMobileAdsPlugin.registerNativeAdFactory(
