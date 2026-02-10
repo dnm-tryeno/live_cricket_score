@@ -389,6 +389,7 @@ class CricketAdService {
             // Auto-show ad on first launch (cold start) - show immediately when loaded
             if (_isFirstLaunch) {
               _isFirstLaunch = false;
+              _shouldShowOnLoad = false; // FIX: foreground flag clear karo - first launch handle karega
               debugPrint(
                 '📢 First launch detected - will auto-show ad when ready',
               );
