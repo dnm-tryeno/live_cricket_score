@@ -34,6 +34,9 @@ class CricketAdService {
   static bool _isFirstLaunch = true; // Track first launch to auto-show ad
   static bool _shouldShowOnLoad =
       false; // Flag to auto-show when ad loads (for foreground)
+  // Interstitial/full-screen ad show hone ke baad ka resumed event suppress karo
+  // (Interstitial dismiss hone pe Flutter resumed fire karta hai - App Open nahi dikhna chahiye)
+  static bool _suppressNextResumedAd = false;
   static DateTime? _lastAdDismissedTime; // Ad DISMISS hone ke baad cooldown track karo
   static int _appOpenAdLoadAttempts = 0;
   static const int _maxAppOpenAdLoadAttempts = 3;
@@ -54,6 +57,7 @@ class CricketAdService {
       _isShowingAppOpenAd = false;
       _isLoadingAppOpen = false;
       _shouldShowOnLoad = false;
+      _suppressNextResumedAd = false;
       _lastAdDismissedTime = null;
 
       // Initialize Mobile Ads SDK first (required for both platforms)
@@ -500,6 +504,16 @@ class CricketAdService {
       return;
     }
 
+    // Interstitial dismiss ke baad Flutter resumed fire karta hai - uss event ko skip karo
+    // Ye ensure karta hai ki App Open Ad sirf background se aane par dikhe, navigation mein nahi
+    if (_suppressNextResumedAd) {
+      _suppressNextResumedAd = false;
+      debugPrint(
+        '⚠️ App-open ad suppressed - resumed was triggered by interstitial/in-app content',
+      );
+      return;
+    }
+
     // Don't show if already showing
     if (_isShowingAppOpenAd) {
       debugPrint('⚠️ App-open ad already showing, skipping');
@@ -631,7 +645,10 @@ class CricketAdService {
               onAdShowedFullScreenContent: (ad) {
                 // Check if ad is still valid before accessing
                 if (_interstitialAd == adRef) {
-                  debugPrint('📢 Interstitial ad showed');
+                  // Interstitial full-screen show hua - next resumed event suppress karo
+                  // (Flutter resumed fire karta hai jab interstitial dismiss hota hai)
+                  _suppressNextResumedAd = true;
+                  debugPrint('📢 Interstitial ad showed - next resumed suppressed');
                 }
               },
               onAdDismissedFullScreenContent: (ad) {
@@ -776,6 +793,7 @@ class CricketAdService {
     _isInterstitialAdReady = false;
     _isLoadingInterstitial = false;
     _isShowingAppOpenAd = false;
+    _suppressNextResumedAd = false;
     _lastAdDismissedTime = null;
     _appOpenAdLoadAttempts = 0;
     _screenViewCount = 0;
