@@ -1,0 +1,130 @@
+name: flutter_project
+description: "A Flutter CricTV : Live Cricket TV HD app."
+publish_to: 'none'
+
+version: 1.0.1+2
+
+environment:
+  sdk: ^3.9.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  cupertino_icons: ^1.0.8
+
+  # Background removal library - Professional quality with ONNX
+  image_background_remover: ^2.0.0
+
+  # HTTP client for Remove.bg API (best quality background removal)
+  http: ^1.2.0
+
+  # HTTP client for Cricket API (cricket app-style: Dio + repository + Riverpod)
+  dio: ^5.7.0
+
+  # JSON serialization
+  json_annotation: ^4.9.0
+
+  # Immutable data classes (cricket app-style, generated via build_runner)
+  freezed_annotation: ^2.4.4
+
+  # Riverpod code generation
+  riverpod_annotation: ^2.6.1
+
+  # Image picking and file handling
+  image_picker: ^1.0.7
+  path_provider: ^2.1.2
+
+  # For saving images to gallery
+  gal: ^2.3.0
+
+  # For sharing images
+  share_plus: ^10.0.0
+  cross_file: ^0.3.4
+
+  # For opening URLs
+  url_launcher: ^6.3.1
+
+  # Routing
+  auto_route: ^10.1.0+1
+  shared_preferences: ^2.5.4
+  flutter_riverpod: ^2.6.1
+  google_mobile_ads: ^7.0.0
+  new_version_plus: ^1.0.1
+  easy_localization: ^3.0.8
+  hooks_riverpod: ^2.6.1
+  flutter_colorpicker: ^1.1.0
+  change_app_package_name: ^1.5.0
+
+  # Environment variables (.env)
+  flutter_dotenv: ^6.0.0
+
+  # Firebase
+  firebase_core: ^3.6.0
+  firebase_analytics: ^11.3.3
+  firebase_remote_config: ^5.1.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^5.0.0
+  # Code generation tools
+  auto_route_generator: ^10.1.0  # Generates app_router.gr.dart
+  build_runner: ^2.4.0  # Runs code generators
+
+  # API code generation (cricket app-style: freezed + riverpod; no manual .freezed — run build_runner)
+  json_serializable: ^6.8.0
+  freezed: ^2.5.7
+  riverpod_generator: ^2.6.2
+
+  # Note: Generated files (app_router.gr.dart) are kept in version control
+  # Regenerate with: flutter pub run build_runner build --delete-conflicting-outputs
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - .env
+    - assets/backgrounds/
+    - assets/backgrounds/bgImages/
+    - assets/
+    - assets/cricket_app/
+    - assets/cricket_app/images/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  # Separate icons for iOS and Android
+  image_path_android: "assets/icon1.png"  # Android icon
+  image_path_ios: "assets/icon.png"       # iOS icon
+  # Adaptive icon settings for Android - transparent background to remove white circle
+  adaptive_icon_background: "#00000000"
+  adaptive_icon_foreground: "assets/icon1.png"
+  remove_alpha_ios: true
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/to/resolution-aware-images
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/to/asset-from-package
+
+  # To add custom fonts to your application, add a fonts section here,
+  # in this "flutter" section. Each entry in this list should have a
+  # "family" key with the font family name, and a "fonts" key with a
+  # list giving the asset and other descriptors for the font. For
+  # example:
+  # fonts:
+  #   - family: Schyler
+  #     fonts:
+  #       - asset: fonts/Schyler-Regular.ttf
+  #       - asset: fonts/Schyler-Italic.ttf
+  #         style: italic
+  #   - family: Trajan Pro
+  #     fonts:
+  #       - asset: fonts/TrajanPro.ttf
+  #       - asset: fonts/TrajanPro_Bold.ttf
+  #         weight: 700
+  #
+  # For details regarding fonts from package dependencies,
+  # see https://flutter.dev/to/font-from-package

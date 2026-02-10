@@ -1,0 +1,166 @@
+plugins {
+    id "com.android.application"
+    // START: FlutterFire Configuration - Commented out - Firebase not needed
+    // id 'com.google.gms.google-services'
+    // id 'com.google.firebase.crashlytics'
+    // END: FlutterFire Configuration
+    id "kotlin-android"
+    // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
+    id "dev.flutter.flutter-gradle-plugin"
+}
+
+def releaseKeystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('./release_key.properties')
+if (keystorePropertiesFile.exists()) {
+    println "confirm keystore values- key alias"
+    releaseKeystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+    println releaseKeystoreProperties['keyAlias']
+} else {
+    println "Warning: release_key.properties file is missing."
+}
+
+
+android {
+    namespace = "com.aryatech.cricketlivescore"
+    compileSdk = flutter.compileSdkVersion
+    ndkVersion = "27.0.12077973"
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        // Ensure Kotlin uses a compatible JVM target
+        jvmTarget = "17"
+    }
+
+    flavorDimensions "default"
+    productFlavors {
+        dev {
+            dimension "default"
+            applicationIdSuffix ".dev"
+            versionNameSuffix "-dev"
+            manifestPlaceholders += [
+                MAPS_API_KEY: ""
+            ]
+        }
+        stg {
+            dimension "default"
+            applicationIdSuffix ".stg"
+            versionNameSuffix "-stg"
+            manifestPlaceholders += [
+                MAPS_API_KEY:  ""
+            ]
+        }
+        prod {
+            dimension "default"
+            manifestPlaceholders += [
+                MAPS_API_KEY:  ""
+            ]
+        }
+    }
+
+    defaultConfig {
+        applicationId = "com.aryatech.cricketlivescore"
+        // Update the minimum and target SDK versions as needed
+        minSdk = 24 // Minimum SDK set to Android 5.0
+        targetSdk = flutter.targetSdkVersion
+        versionCode = flutter.versionCode
+        versionName = flutter.versionName
+
+        // Memory optimization for ONNX processing
+        // Prevents crashes during background removal on low-RAM devices
+        multiDexEnabled true
+
+        // Native library optimizations for ONNX
+        ndk {
+            abiFilters 'armeabi-v7a', 'arm64-v8a', 'x86_64'
+        }
+    }
+
+    // Additional memory optimizations
+    packagingOptions {
+        // Prevent duplicate native library errors
+        pickFirst 'lib/*/libonnxruntime.so'
+        pickFirst 'lib/*/libc++_shared.so'
+    }
+
+    signingConfigs {
+        release {
+            keyAlias releaseKeystoreProperties['keyAlias']
+            keyPassword releaseKeystoreProperties['keyPassword']
+            storeFile releaseKeystoreProperties['storeFile'] ? file(releaseKeystoreProperties['storeFile']) : null
+            storePassword releaseKeystoreProperties['storePassword']
+        }
+    }
+
+    buildTypes {
+        debug {
+            // Crashlytics को debug में upload न करें (optional, safe) - Commented out - Firebase not needed
+            // firebaseCrashlytics {
+            //     mappingFileUploadEnabled false
+            // }
+        }
+        release {
+            signingConfig signingConfigs.release
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
+            // (optional) Native symbol upload बंद - Commented out - Firebase not needed
+            // firebaseCrashlytics {
+            //     nativeSymbolUploadEnabled false
+            // }
+            ndk {
+                debugSymbolLevel 'SYMBOL_TABLE'
+            }
+            // Fix for app bundle debug symbols stripping
+            bundle {
+                language {
+                    enableSplit = false
+                }
+                density {
+                    enableSplit = false
+                }
+                abi {
+                    enableSplit = false
+                }
+            }
+        }
+    }
+}
+
+flutter {
+    source = "../.."
+}
+
+// --- ADDITIONS for Google Sign-In / Firebase (safe with FlutterFire) ---
+// Commented out - Firebase not needed
+dependencies {
+    // Firebase BoM to align versions across Firebase libs
+    // implementation platform('com.google.firebase:firebase-bom:33.5.1')
+
+    // (Optional) if you use analytics; harmless if not used at runtime
+    // implementation 'com.google.firebase:firebase-analytics'
+
+    // (Optional) only needed if you're NOT using the Flutter firebase_crashlytics package.
+    // implementation 'com.google.firebase:firebase-crashlytics'
+
+    // Google Sign-In for Android (used by google_sign_in) - Commented out - Firebase not needed
+    // implementation 'com.google.android.gms:play-services-auth:21.2.0'
+    
+    // Material Components for Android (required for Theme.MaterialComponents)
+    implementation 'com.google.android.material:material:1.12.0'
+    
+    // Google Play Services Ads for AdMob compatibility
+    implementation 'com.google.android.gms:play-services-ads:23.0.0'
+}
+
+// Fix for extractDeepLinks task dependency issue with Firebase Crashlytics - Commented out - Firebase not needed
+// tasks.whenTaskAdded { task ->
+//     if (task.name.contains('extractDeepLinks')) {
+//         task.dependsOn tasks.matching { it.name.contains('processGoogleServices') }
+//         task.dependsOn tasks.matching { it.name.contains('injectCrashlyticsMappingFileId') }
+//         task.dependsOn tasks.matching { it.name.contains('generateResValues') }
+//     }
+// }

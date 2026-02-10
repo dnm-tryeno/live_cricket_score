@@ -1,0 +1,118 @@
+# frozen_string_literal: true
+
+default_platform(:android)
+
+platform :android do
+  ###############################################
+  # Local Development Usage:
+  # Run with arguments:
+  # fastlane android_dev_distribute_firebase testers:"email1@test.com,email2@test.com"
+  ###############################################
+
+  # ===========================================
+  # MAIN PUBLIC LANES (Entry Points)
+  # ===========================================
+
+  desc 'android [DEV] Firebase Distribution Build & deploy & upload'
+  lane :android_dev_distribute_firebase do |options|
+    puts "🔄 testers length: #{options[:testers]&.length}"
+
+    clean_build_flutter(
+      env: 'dev'
+    )
+
+    distribute_to_firebase(
+      env: 'dev',
+      firebase_app_id: '1:446527057158:android:2663257fa11133ca810287',
+      testers: options[:testers],
+      commit_message: options[:commit_message],
+      commit_author: options[:commit_author],
+      commit_hash: options[:commit_hash],
+      commit_date: options[:commit_date]
+    )
+  end
+
+  desc 'android [STG] Firebase Distribution Build & deploy & upload'
+  lane :android_stg_distribute_firebase do |options|
+    puts "🔄 testers length: #{options[:testers]&.length}"
+
+    clean_build_flutter(
+      env: 'stg'
+    )
+
+    distribute_to_firebase(
+      env: 'stg',
+      firebase_app_id: '1:744539777594:android:d2bfd5b20891c7e28f6303',
+      testers: options[:testers],
+      commit_message: options[:commit_message],
+      commit_author: options[:commit_author],
+      commit_hash: options[:commit_hash],
+      commit_date: options[:commit_date]
+    )
+  end
+
+  desc 'Runs all the tests'
+  lane :test do
+    gradle(task: 'test')
+  end
+
+  desc 'Submit a new Beta Build to Crashlytics Beta'
+  lane :beta do
+    gradle(task: 'clean assembleRelease')
+    crashlytics
+  end
+
+  desc 'Deploy a new version to the Google Play'
+  lane :deploy do
+    gradle(task: 'clean assembleRelease')
+    upload_to_play_store
+  end
+
+  # ===========================================
+  # PRIVATE LANES (Reusable Functions)
+  # ===========================================
+
+  # Reusable function to clean and build Flutter project
+  private_lane :clean_build_flutter do |options|
+    env = options[:env] # 'dev' or 'stg'
+    puts "🔍 clean build flutter flavor: #{env}"
+    sh <<-EOF
+      ROOT_DIR=$(cd ../.. && pwd)
+      echo "📂📂📂📂 Flutter root: $ROOT_DIR"
+      cd $ROOT_DIR
+      echo "🧹🧹🧹🧹 Setup and install dependencies"
+      flutter pub get && dart run build_runner build --delete-conflicting-outputs --define=envied_generator:envied=path=.env.#{env}
+      flutter build apk -t lib/main/main_#{env}.dart --release --flavor #{env}
+    EOF
+  end
+
+  # Reusable function to distribute to Firebase
+  private_lane :distribute_to_firebase do |options|
+    testers = options[:testers]
+    commit_info = {
+      message: options[:commit_message] || 'Local build',
+      author: options[:commit_author] || `git config user.name`.strip,
+      hash: options[:commit_hash] || `git rev-parse --short HEAD`.strip,
+      date: options[:commit_date] || Time.now.strftime('%Y-%m-%d %H:%M')
+    }
+
+    release_notes = <<~NOTES
+      #{options[:env].upcase} Release
+
+      📝 Commit Message:
+      #{commit_info[:message]}
+
+      👤 Author: #{commit_info[:author]}
+      🔨 Commit: #{commit_info[:hash]}
+      📅 Date: #{commit_info[:date]}
+    NOTES
+    puts "🔄 Running firebase_app_distribution step.... testers: #{testers}"
+    firebase_app_distribution(
+      app: options[:firebase_app_id],
+      apk_path: "../build/app/outputs/apk/#{options[:env]}/release/app-#{options[:env]}-release.apk",
+      service_credentials_file: "#{options[:env]}_firebase_service_credentials.json",
+      testers: testers,
+      release_notes: release_notes
+    )
+  end
+end

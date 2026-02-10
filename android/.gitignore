@@ -1,0 +1,20 @@
+/.gradle
+/captures/
+/local.properties
+GeneratedPluginRegistrant.java
+
+# Remember to never publicly share your keystore.
+# See https://flutter.dev/to/reference-keystore
+key.properties
+**/*.keystore
+**/*.jks
+
+/fastlane/build/
+
+/build/
+
+.kotlin/sessions/kotlin-compiler-7803878905666338587.salive
+
+.cxx/
+
+/vendor

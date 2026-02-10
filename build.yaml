@@ -1,0 +1,46 @@
+targets:
+  $default:
+    builders:
+      envied_generator|envied:
+        options:
+          path: .env.dev
+          override: true
+      auto_route_generator|autoRouteGenerator:
+        generate_for:
+          - lib/feature/shared/navigation/app_router.dart
+        options:
+          # Keep generated files frozen (committed to git)
+          # Generated file: lib/feature/shared/navigation/app_router.gr.dart
+          generate_route_list: true
+
+      # Freezed configuration for cricket app models
+      freezed:
+        generate_for:
+          - lib/cricket_app/data/models/*.dart
+        options:
+          copyWith: true
+          equal: true
+          to_string: true
+
+      # JSON serialization for cricket app models
+      json_serializable:
+        generate_for:
+          - lib/cricket_app/data/models/*.dart
+        options:
+          any_map: false
+          checked: false
+          create_factory: true
+          create_to_json: true
+          disallow_unrecognized_keys: false
+          explicit_to_json: true
+          field_rename: none
+          generic_argument_factories: false
+          ignore_unannotated: false
+          include_if_null: true
+
+      # Riverpod generator for cricket app providers
+      riverpod_generator:
+        generate_for:
+          - lib/cricket_app/data/remote/api_client/providers/*.dart
+          - lib/cricket_app/data/repositories/providers/*.dart
+          - lib/cricket_app/providers/*.dart

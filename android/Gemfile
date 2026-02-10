@@ -1,0 +1,14 @@
+# Gemfile
+source "https://rubygems.org"
+
+# Specify Ruby version to ensure compatibility
+ruby "3.2.2"
+
+# Use compatible versions to avoid ActiveSupport/Logger issues
+gem "fastlane", "~> 2.228.0"
+
+# Add explicit ActiveSupport version to avoid Logger compatibility issues
+gem "activesupport", "~> 7.2.2"
+
+plugins_path = File.join(File.dirname(__FILE__), 'fastlane', 'Pluginfile')
+eval_gemfile(plugins_path) if File.exist?(plugins_path)

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "191648214263",
+    "project_id": "ios-live-cricket-score-tv",
+    "storage_bucket": "ios-live-cricket-score-tv.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:191648214263:android:d5c4ef56b7255cbd93b7f2",
+        "android_client_info": {
+          "package_name": "com.aryatech.cricketlivescore"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCVS-ZjGhctIRrzpkzlqd8x0lb9URZq-oo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
