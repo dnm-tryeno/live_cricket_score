@@ -62,7 +62,9 @@ class _PostLoadingScreenState extends State<PostLoadingScreen>
 
   void _navigateToHome() {
     // Show interstitial ad before navigating (if enabled)
-    CricketAdService.showInterstitialAdIfNeeded(screenName: 'post_loading_to_home').then((_) {
+    CricketAdService.showInterstitialAdIfNeeded(
+      screenName: 'post_loading_to_home',
+    ).then((_) {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const CricketHomeScreen()),
@@ -125,18 +127,18 @@ class _PostLoadingScreenState extends State<PostLoadingScreen>
 
   Future<void> _shareApp() async {
     try {
-      final url =
-          defaultTargetPlatform == TargetPlatform.iOS
-              ? 'https://apps.apple.com/app/id$_iosAppId'
-              : 'https://play.google.com/store/apps/details?id=$_androidPackageName';
+      final url = defaultTargetPlatform == TargetPlatform.iOS
+          ? 'https://apps.apple.com/app/id$_iosAppId'
+          : 'https://play.google.com/store/apps/details?id=$_androidPackageName';
 
       final shareText = 'Check out this app!\n\n$url';
 
       // iPad requires an anchor for the share sheet.
       final renderObject = context.findRenderObject();
       final box = renderObject is RenderBox ? renderObject : null;
-      final origin =
-          box != null ? (box.localToGlobal(Offset.zero) & box.size) : null;
+      final origin = box != null
+          ? (box.localToGlobal(Offset.zero) & box.size)
+          : null;
 
       await Share.share(
         shareText,
@@ -419,10 +421,13 @@ class _PostLoadingScreenState extends State<PostLoadingScreen>
                   ],
                 ),
               ),
-              
+
               // Small banner ad below Start button
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: CricketAdService.getSmallBannerAdWidget(padding: 0),
               ),
             ],

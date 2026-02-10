@@ -43,9 +43,11 @@ Future<void> sharedMain({List<dynamic> overrides = const []}) async {
 
     // Initialize Remote Config (needed for ad/feature flags; safe on Android+iOS)
     await FirebaseRemoteConfigService.initialize();
-    
+
     if (kDebugMode) {
-      debugPrint('✅ Firebase initialized for ${Platform.isIOS ? "iOS" : "Android"}');
+      debugPrint(
+        '✅ Firebase initialized for ${Platform.isIOS ? "iOS" : "Android"}',
+      );
     }
   } catch (e) {
     debugPrint('⚠️ Firebase initialization error: $e');
