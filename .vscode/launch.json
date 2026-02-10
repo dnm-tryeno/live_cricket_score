@@ -1,0 +1,86 @@
+{
+        // Use IntelliSense to learn about possible attributes.
+        // Hover to view descriptions of existing attributes.
+        // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+        "version": "0.2.0",
+        "configurations": [
+                {
+                        "name": "CricTV : Live Cricket TV HD(dev-debug)",
+                        "request": "launch",
+                        "type": "dart",
+                        "program": "lib/main/main_dev.dart",
+                        "flutterMode": "debug",
+                        "args": [
+                                "--flavor",
+                                "dev",
+                                "--target",
+                                "lib/main/main_dev.dart"
+                        ]
+                },
+                {
+                        "name": "CricTV : Live Cricket TV HD(dev-release)",
+                        "request": "launch",
+                        "type": "dart",
+                        "program": "lib/main/main_dev.dart",
+                        "flutterMode": "release",
+                        "args": [
+                                "--flavor",
+                                "dev",
+                                "--target",
+                                "lib/main/main_dev.dart"
+                        ]
+                },
+                {
+                        "name": "CricTV : Live Cricket TV HD(stg-debug)",
+                        "request": "launch",
+                        "type": "dart",
+                        "program": "lib/main/main_stg.dart",
+                        "flutterMode": "debug",
+                        "args": [
+                                "--flavor",
+                                "stg",
+                                "--target",
+                                "lib/main/main_stg.dart"
+                        ]
+                },
+                {
+                        "name": "CricTV : Live Cricket TV HD(stg-release)",
+                        "request": "launch",
+                        "type": "dart",
+                        "program": "lib/main/main_stg.dart",
+                        "flutterMode": "release",
+                        "args": [
+                                "--flavor",
+                                "stg",
+                                "--target",
+                                "lib/main/main_stg.dart"
+                        ]
+                },
+                {
+                        "name": "CricTV : Live Cricket TV HD(prod-debug)",
+                        "request": "launch",
+                        "type": "dart",
+                        "program": "lib/main/main_prod.dart",
+                        "flutterMode": "debug",
+                        "args": [
+                                "--flavor",
+                                "prod",
+                                "--target",
+                                "lib/main/main_prod.dart"
+                        ]
+                },
+                {
+                        "name": "CricTV : Live Cricket TV HD(prod-release)",
+                        "request": "launch",
+                        "type": "dart",
+                        "program": "lib/main/main_prod.dart",
+                        "flutterMode": "release",
+                        "args": [
+                                "--flavor",
+                                "prod",
+                                "--target",
+                                "lib/main/main_prod.dart"
+                        ]
+                }
+        ]
+    }
