@@ -134,35 +134,32 @@ class NativeAdFactory: FLTNativeAdFactory {
     
     // Set constraints
     NSLayoutConstraint.activate([
-      // Icon constraints
+      // Icon constraints - vertically centered
       iconView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 16),
-      iconView.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
+      iconView.centerYAnchor.constraint(equalTo: containerView.centerYAnchor),
       iconView.widthAnchor.constraint(equalToConstant: 60),
       iconView.heightAnchor.constraint(equalToConstant: 60),
-      
+
       // Title constraints
       titleLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 12),
       titleLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
       titleLabel.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 16),
-      
+
       // Body constraints
       bodyLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 12),
       bodyLabel.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -16),
       bodyLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 8),
-      
+
       // CTA button constraints
       ctaButton.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 12),
       ctaButton.topAnchor.constraint(equalTo: bodyLabel.bottomAnchor, constant: 8),
       ctaButton.widthAnchor.constraint(greaterThanOrEqualToConstant: 100),
-      ctaButton.heightAnchor.constraint(equalToConstant: 32),
-      
+      ctaButton.heightAnchor.constraint(equalToConstant: 36),
+
       // Advertiser constraints
       advertiserLabel.leadingAnchor.constraint(equalTo: iconView.trailingAnchor, constant: 12),
       advertiserLabel.topAnchor.constraint(equalTo: ctaButton.bottomAnchor, constant: 4),
-      advertiserLabel.bottomAnchor.constraint(equalTo: containerView.bottomAnchor, constant: -16),
-      
-      // Container constraints
-      containerView.heightAnchor.constraint(greaterThanOrEqualToConstant: 120)
+      advertiserLabel.bottomAnchor.constraint(lessThanOrEqualTo: containerView.bottomAnchor, constant: -16),
     ])
     
     // Add container to native ad view

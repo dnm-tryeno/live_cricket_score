@@ -121,7 +121,7 @@ class ListTileNativeAdFactory(private val context: Context) : GoogleMobileAdsPlu
         adView.visibility = View.VISIBLE
         adView.layoutParams = ViewGroup.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT,
-            ViewGroup.LayoutParams.WRAP_CONTENT
+            ViewGroup.LayoutParams.MATCH_PARENT
         )
 
         // Main horizontal container
@@ -129,11 +129,11 @@ class ListTileNativeAdFactory(private val context: Context) : GoogleMobileAdsPlu
             orientation = LinearLayout.HORIZONTAL
             layoutParams = ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
+                ViewGroup.LayoutParams.MATCH_PARENT
             )
             setPadding(24, 24, 24, 24)
             visibility = View.VISIBLE
-            minimumHeight = 200
+            gravity = android.view.Gravity.CENTER_VERTICAL
         }
 
         // Icon view (required by AdMob validator) - left side
