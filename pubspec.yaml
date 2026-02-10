@@ -86,8 +86,7 @@ flutter:
 
   assets:
     - .env
-    - assets/backgrounds/
-    - assets/backgrounds/bgImages/
+    
     - assets/
     - assets/cricket_app/
     - assets/cricket_app/images/
