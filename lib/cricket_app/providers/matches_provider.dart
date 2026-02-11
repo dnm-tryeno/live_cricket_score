@@ -22,6 +22,11 @@ class MatchesNotifier extends _$MatchesNotifier {
   bool _isLoadingMore = false;
   final List<MatchModel> _accumulatedMatches = [];
 
+  // Tracks which filter was actually used when the current data was fetched.
+  // null means no data has been loaded yet for the current filter.
+  // Used to prevent showing stale data from a previous filter on screen open.
+  MatchFilterType? _lastDataFilter;
+
   @override
   Future<CricketMatchesResponseModel> build() async {
     // Reset pagination on every build (triggered by invalidateSelf / filter change)
@@ -64,6 +69,9 @@ class MatchesNotifier extends _$MatchesNotifier {
       _accumulatedMatches.addAll(newMatches);
       _currentOffset += _pageSize;
 
+      // Mark that current data was fetched for _currentFilter
+      _lastDataFilter = _currentFilter;
+
       return CricketMatchesResponseModel(data: List.from(_accumulatedMatches));
     } catch (e, stackTrace) {
       debugPrint('❌ Error fetching matches (${_currentFilter.name}): $e');
@@ -101,6 +109,7 @@ class MatchesNotifier extends _$MatchesNotifier {
     }
     debugPrint('🔄 Changing filter from ${_currentFilter.name} to ${filter.name}');
     _currentFilter = filter;
+    _lastDataFilter = null; // Reset so stale data from previous filter is not shown
     ref.invalidateSelf();
     try {
       await future;
@@ -117,6 +126,10 @@ class MatchesNotifier extends _$MatchesNotifier {
 
   /// Gets the current filter
   MatchFilterType get currentFilter => _currentFilter;
+
+  /// Gets the filter that was used when data was last successfully fetched.
+  /// null if no data has been loaded yet for the current filter.
+  MatchFilterType? get lastDataFilter => _lastDataFilter;
 }
 
 /// Provider for the current match filter

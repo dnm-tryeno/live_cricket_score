@@ -49,6 +49,10 @@ class CricketAdService {
   static bool _isInterstitialAdReady = false;
   static bool _isLoadingInterstitial = false;
 
+  // Move counter: tracks how many times showInterstitialAdIfNeeded has been called
+  // Ad only shows on odd calls (1, 3, 5...) - skips even calls (2, 4, 6...)
+  static int _interstitialMoveCount = 0;
+
   /// Initialize ads
   static Future<void> initialize() async {
     try {
@@ -743,6 +747,20 @@ class CricketAdService {
 
     // Increment screen view count (for analytics)
     incrementScreenView();
+
+    // Alternate move logic: increment counter and skip even-numbered moves
+    // Move 1 -> show, Move 2 -> skip, Move 3 -> show, Move 4 -> skip...
+    _interstitialMoveCount++;
+    if (_interstitialMoveCount % 2 == 0) {
+      debugPrint('⏭️ Skipping interstitial ad on even move #$_interstitialMoveCount (screen: $screenName)');
+      // Preload for next move
+      if (!_isInterstitialAdReady && !_isLoadingInterstitial) {
+        loadInterstitialAd();
+      }
+      return;
+    }
+
+    debugPrint('📢 Attempting to show interstitial ad on move #$_interstitialMoveCount (screen: $screenName)');
 
     // Show ad immediately if ready
     if (_isInterstitialAdReady && _interstitialAd != null) {
