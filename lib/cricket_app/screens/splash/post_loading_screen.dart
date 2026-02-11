@@ -44,6 +44,9 @@ class _PostLoadingScreenState extends State<PostLoadingScreen>
 
     _fadeController.forward();
 
+    // Preload interstitial ad so it's ready when Start button is clicked
+    CricketAdService.preloadInterstitialAd();
+
     // Navigate to onboarding after some time (commented out for now)
     // Future.delayed(const Duration(seconds: 5), () {
     //   if (mounted) {
@@ -63,10 +66,8 @@ class _PostLoadingScreenState extends State<PostLoadingScreen>
   }
 
   void _navigateToHome() {
-    // Show interstitial ad before navigating (if enabled)
-    CricketAdService.showInterstitialAdIfNeeded(
-      screenName: 'post_loading_to_home',
-    ).then((_) {
+    // Show interstitial ad before navigating (always shows if ready - bypasses move counter)
+    CricketAdService.showInterstitialAdForStartButton().then((_) {
       if (mounted) {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const CricketHomeScreen()),

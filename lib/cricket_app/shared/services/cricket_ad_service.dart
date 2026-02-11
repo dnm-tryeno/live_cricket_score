@@ -794,6 +794,48 @@ class CricketAdService {
     }
   }
 
+  /// Show interstitial ad for Start button - uses move counter logic (starts counting from welcome page)
+  /// Call this specifically for the Start button click on PostLoadingScreen
+  static Future<void> showInterstitialAdForStartButton() async {
+    if (!shouldShowAds()) {
+      return;
+    }
+
+    // Increment counter (welcome page se counting shuru hogi)
+    _interstitialMoveCount++;
+
+    debugPrint('📢 Start button clicked (move #$_interstitialMoveCount) - attempting to show interstitial ad');
+
+    // Show ad only on odd moves (1, 3, 5...) - skip even moves (2, 4, 6...)
+    if (_interstitialMoveCount % 2 == 0) {
+      debugPrint('⏭️ Skipping interstitial ad on even move #$_interstitialMoveCount (Start button)');
+      // Preload for next move
+      if (!_isInterstitialAdReady && !_isLoadingInterstitial) {
+        loadInterstitialAd();
+      }
+      return;
+    }
+
+    if (_isInterstitialAdReady && _interstitialAd != null) {
+      try {
+        await _interstitialAd!.show();
+        _isInterstitialAdReady = false;
+        debugPrint('✅ Interstitial ad shown for Start button (move #$_interstitialMoveCount)');
+      } catch (e) {
+        debugPrint('❌ Error showing interstitial ad for Start button: $e');
+        _interstitialAd?.dispose();
+        _interstitialAd = null;
+        _isInterstitialAdReady = false;
+        loadInterstitialAd();
+      }
+    } else {
+      debugPrint('⏭️ Interstitial ad not ready for Start button - loading for next time');
+      if (!_isLoadingInterstitial) {
+        loadInterstitialAd();
+      }
+    }
+  }
+
   /// Reset screen view count
   static void resetScreenViewCount() {
     _screenViewCount = 0;
