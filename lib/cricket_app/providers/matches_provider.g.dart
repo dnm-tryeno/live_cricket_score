@@ -289,7 +289,7 @@ class _MatchByIdProviderElement
   String get matchId => (origin as MatchByIdProvider).matchId;
 }
 
-String _$matchesNotifierHash() => r'd4747f4e32be8b5c588b63b9ebeface07915babb';
+String _$matchesNotifierHash() => r'71f60e593ce71c6fe543eef802cd0e320eb0de02';
 
 /// State notifier for managing cricket matches data with pagination.
 /// Live filter uses [CurrentMatchesNotifier] instead (auto-refresh).
