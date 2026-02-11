@@ -285,10 +285,13 @@ class _MatchesListScreenState extends ConsumerState<MatchesListScreen> {
       ),
       error: (error, _) => _buildErrorWidget(),
       data: (response) {
-        // Verify the data matches the expected filter to prevent showing wrong matches on first load
+        // Verify that the data was actually fetched with the expected filter.
+        // currentFilter is set synchronously in changeFilter() before the data
+        // arrives, so comparing currentFilter alone is insufficient — we must
+        // check lastDataFilter which is only set after _fetchPage() returns.
         final notifier = ref.read(matchesNotifierProvider.notifier);
-        if (notifier.currentFilter != widget.filterType) {
-          // Filter mismatch - still loading correct data, show loading indicator
+        if (notifier.lastDataFilter != widget.filterType) {
+          // Data is stale (from a previous filter) — show loading spinner
           return const Center(
             child: CircularProgressIndicator(color: CricketColors.primaryBlue),
           );
