@@ -20,7 +20,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   bool get _isAndroid => defaultTargetPlatform == TargetPlatform.android;
 
   static const String _androidPackageName = 'com.aryatech.cricketlivescore';
-  static const String _iosAppId = '6739782344';
+  static const String _iosAppId = '6758535260';
+  static const String _iosAppStoreUrl =
+      'https://apps.apple.com/in/app/crictv-live-cricket-tv-hd/id6758535260';
 
   Future<void> _openUrl(String urlString) async {
     try {
@@ -105,11 +107,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _shareApp() async {
     try {
-      final url = defaultTargetPlatform == TargetPlatform.iOS
-          ? 'https://apps.apple.com/app/id$_iosAppId'
+      final String urlString = defaultTargetPlatform == TargetPlatform.iOS
+          ? _iosAppStoreUrl
           : 'https://play.google.com/store/apps/details?id=$_androidPackageName';
 
-      final shareText = 'Check out this app!\n\n$url';
+      final uri = Uri.parse(urlString);
 
       // iPad requires an anchor for the share sheet.
       final renderObject = context.findRenderObject();
@@ -118,9 +120,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ? (box.localToGlobal(Offset.zero) & box.size)
           : null;
 
-      await Share.share(
-        shareText,
-        subject: 'Cricket Live Score',
+      // Share as a proper URI so clicking the link opens the store directly
+      await Share.shareUri(
+        uri,
         sharePositionOrigin: origin,
       );
     } catch (e) {
