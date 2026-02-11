@@ -37,6 +37,12 @@
 	</dict>
 	<key>NSUserTrackingUsageDescription</key>
 	<string>This identifier will be used to deliver personalized ads to you.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>We need access to your camera to take photos for background removal.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need access to save processed images to your photo library.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to select images for background removal.</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
